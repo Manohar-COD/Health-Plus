@@ -27,3 +27,8 @@ npm-debug.log*
 # Temporary files
 .cache/
 .parcel-cache
+node_modules
+.env
+dist
+build
+coverage

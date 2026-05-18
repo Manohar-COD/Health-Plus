@@ -28,6 +28,11 @@ app.use('/api/health', require('./routes/health'));
 app.use('/api/workouts', require('./routes/workouts'));
 app.use('/api/profile', require('./routes/profile'));
 
+// Basic root route
+app.get('/', (req, res) => {
+  res.json({ message: 'Health Plus API is running 🚀', status: 'ok' });
+});
+
 // Health check
 app.get('/api/ping', (req, res) => {
   res.json({ message: 'Health Plus API is running 🚀', timestamp: new Date() });
