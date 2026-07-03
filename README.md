@@ -957,3 +957,179 @@ plt.show()
 
 spark.stop()
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+1]import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+df = pd.DataFrame({
+    "Age":[25,35,None,45,35],
+    "BloodPressure":[120,130,140,None,130],
+    "Glucose":[90,110,150,160,110],
+    "Diagnosis":["Diabetes","diabetes","Healthy","Healthy","diabetes"]
+})
+print("Missing Values")
+print(df.isnull().sum())
+print("Duplicate Records")
+print(df.duplicated().sum())
+df["Age"] = df["Age"].fillna(df["Age"].mean())
+df["BloodPressure"] = df["BloodPressure"].fillna(df["BloodPressure"].mean())
+df = df.drop_duplicates()
+df["Diagnosis"] = df["Diagnosis"].str.lower()
+scaler = MinMaxScaler()
+df[["Age","BloodPressure","Glucose"]] = scaler.fit_transform(
+    df[["Age","BloodPressure","Glucose"]]
+)
+df["RiskScore"] = df["Age"] + df["BloodPressure"] + df["Glucose"]
+print(df)
+
+
+2]import pandas as pd
+import numpy as np
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+df = pd.DataFrame({
+    "Age":[25,35,np.nan,45,60],
+    "BMI":[18,24,30,35,28],
+    "BP":[120,130,140,200,150],
+    "Glucose":[90,110,150,300,180]})
+print("Missing Values")
+print(df.isnull().sum())
+print("Duplicate Records")
+print(df.duplicated().sum())
+print("Before Cleaning")
+print(df.describe())
+df = df.fillna(df.mean())
+df = df.drop_duplicates()
+# Outlier Treatment
+df["BP"] = np.where(df["BP"]>180, df["BP"].median(), df["BP"])
+df["Glucose"] = np.where(df["Glucose"]>250, df["Glucose"].median(), df["Glucose"])
+df[["Age","BMI"]] = MinMaxScaler().fit_transform(df[["Age","BMI"]])
+df[["BP","Glucose"]] = StandardScaler().fit_transform(df[["BP","Glucose"]])
+df["BMI_Category"] = ["Normal","Normal","Obese","Obese","Overweight"]
+df["Age_Group"] = ["Young","Adult","Adult","Adult","Senior"]
+df["RiskScore"] = df["Age"] + df["BMI"] + df["BP"] + df["Glucose"]
+print("Final Dataset")
+3]import pandas as pd
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+titanic = pd.DataFrame({
+    "PassengerId":[1,2,3],
+    "Name":["John","Mary","David"],
+    "Sex":["Male","Female","Male"],
+    "Age":[22,35,28],
+    "Fare":[100,200,150]})
+metadata = pd.DataFrame({
+    "Passenger_ID":[1,2,3],
+    "Cabin":["C1","C2","C3"]
+})
+print("Before Statistics")
+print(titanic.describe())
+metadata.rename(columns={"Passenger_ID":"PassengerId"}, inplace=True)
+df = pd.merge(titanic, metadata, on="PassengerId")
+encoder = LabelEncoder()
+df["Sex"] = encoder.fit_transform(df["Sex"])
+scaler = StandardScaler()
+df[["Age","Fare"]] = scaler.fit_transform(df[["Age","Fare"]])
+print("\nFinal Dataset")
+print(df)
+print("\nAfter Statistics")
+print(df.describe())
+
+4] import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+sales = pd.DataFrame({
+    "CustomerID":[101,102,103],
+    "Amount":[5000,None,7000]
+})
+customer = pd.DataFrame({
+    "CustomerID":[101,102,103],
+    "Name":["Rahul","Sneha","Arjun"],
+    "Age":[25,30,28]
+})
+df = pd.merge(sales, customer, on="CustomerID")
+df["Amount"] = df["Amount"].fillna(df["Amount"].mean())
+df["Age"] = df["Age"].astype(int)
+scaler = MinMaxScaler()
+df[["Amount","Age"]] = scaler.fit_transform(df[["Amount","Age"]])
+print(df)
+
+
+
+
+
+
+
+
+5] import pandas as pd
+emp = pd.DataFrame({
+    "Emp_ID":[101,102,103],
+    "Name":["Rahul","Sneha","Arjun"]
+})
+dept = pd.DataFrame({
+    "Employee_ID":[101,102,103],
+    "Department":["HR","IT","Finance"]
+})
+dept.rename(columns={"Employee_ID":"Emp_ID"}, inplace=True)
+df = pd.merge(emp, dept, on="Emp_ID")
+print(df)
+
+
+
+
+
+
+
+
+
+
+
+
+
+6] import random
+import time
+def temperature():
+    for i in range(15):
+        yield random.randint(15,110)
+        time.sleep(0.3)
+total = 0
+count = 0
+minimum = 110
+maximum = 15
+for temp in temperature():
+    count += 1
+    total += temp
+    minimum = min(minimum,temp)
+    maximum = max(maximum,temp)
+    mean = total/count
+    print("Current :",temp)
+    print("Running Mean :",mean)
+    print("Running Minimum :",minimum)
+    print("Running Maximum :",maximum)
+    print("Count :",count)
+    print()
+
+
+
+8] from pyspark.sql import SparkSession
+import matplotlib.pyplot as plt
+spark = SparkSession.builder.appName("Employee").getOrCreate()
+df = spark.read.csv(
+    "employee.csv",
+    header=True,
+    inferSchema=True
+)
+print("Employees with Salary > 70000")
+df.filter(df.Salary > 70000).show()
+print("Average Salary by Department")
+df.groupBy("Department").avg("Salary").show()
+print("Maximum Salary by Department")
+df.groupBy("Department").max("Salary").show()
+pdf = df.toPandas()
+plt.bar(pdf["Name"], pdf["Salary"])
+plt.title("Employee Salary")
+plt.xlabel("Employee")
+plt.ylabel("Salary")
+plt.show()
+plt.hist(pdf["Salary"])
+plt.title("Salary Distribution")
+plt.xlabel("Salary")
+plt.ylabel("Frequency")
+plt.show()
